@@ -3,7 +3,7 @@ import { INestApplication } from '@nestjs/common';
 import { App } from 'supertest/types';
 import { AppModule } from '../src/app.module';
 
-describe('AuthController (e2e)', () => {
+describe('auth (e2e)', () => {
   let app: INestApplication<App>;
 
   beforeEach(async () => {
