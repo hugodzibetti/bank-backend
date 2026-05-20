@@ -1,6 +1,6 @@
 import { Body, Injectable } from '@nestjs/common';
-import { LoginDto } from './dtos/login.dto';
-import { SingUpDto } from './dtos/singUp.dto';
+import { LoginDto } from './dto/login.dto';
+import { SignUpDto } from './dto/sign-up.dto';
 
 @Injectable()
 export class AuthService {
@@ -8,7 +8,7 @@ export class AuthService {
     return 'Logged in!';
   }
 
-  signUp(@Body() body: SingUpDto): string {
+  signUp(@Body() body: SignUpDto): string {
     return 'Signed Up!';
   }
 }
