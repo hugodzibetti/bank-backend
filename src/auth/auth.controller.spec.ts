@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { LoginDto } from './dtos/login.dto';
 
 describe('AuthController', () => {
   let authController: AuthController;
@@ -14,9 +15,14 @@ describe('AuthController', () => {
     authController = app.get<AuthController>(AuthController);
   });
 
-  describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(authController.login()).toBe();
+  describe('login', () => {
+    it('should success with example user', () => {
+      const validLoginDto: LoginDto = {
+        email: 'example@gmail.com',
+        password: '01020304',
+      };
+
+      expect(authController.login(validLoginDto)).toBe('Logged in!');
     });
   });
 });
