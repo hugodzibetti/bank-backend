@@ -61,6 +61,8 @@
     "typescript-eslint": "^8.20.0"
   },
   "jest": {
+    "globalSetup": "../test/jest-global-setup.ts",
+    "globalTeardown": "../test/jest-global-teardown.ts",
     "moduleFileExtensions": [
       "js",
       "json",

@@ -8,6 +8,7 @@ import {
   PostgreSqlContainer,
   StartedPostgreSqlContainer,
 } from '@testcontainers/postgresql';
+import { createTestDatabaseModule } from '../../test/helpers/test-database';
 
 let pgContainer: StartedPostgreSqlContainer;
 
@@ -15,23 +16,11 @@ describe('AuthController', () => {
   let authController: AuthController;
   let authService: AuthService;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     pgContainer = await new PostgreSqlContainer('postgres:16').start();
 
     const app: TestingModule = await Test.createTestingModule({
-      imports: [
-        TypeOrmModule.forRoot({
-          type: 'postgres',
-          host: pgContainer.getHost(),
-          port: pgContainer.getPort(),
-          username: pgContainer.getUsername(),
-          password: pgContainer.getPassword(),
-          database: pgContainer.getDatabase(),
-          entities: [User],
-          synchronize: true,
-        }),
-        TypeOrmModule.forFeature([User]),
-      ],
+      imports: [createTestDatabaseModule(), TypeOrmModule.forFeature([User])],
       controllers: [AuthController],
       providers: [AuthService],
     }).compile();

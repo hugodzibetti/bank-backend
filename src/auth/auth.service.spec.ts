@@ -3,11 +3,9 @@ import { LoginDto } from './dto/login.dto';
 import { User } from '../users/entities/user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Test, TestingModule } from '@nestjs/testing';
-import {
-  PostgreSqlContainer,
-  StartedPostgreSqlContainer,
-} from '@testcontainers/postgresql';
+import { StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import { SignUpDto } from './dto/sign-up.dto';
+import { createTestDatabaseModule } from '../../test/helpers/test-database';
 
 let pgContainer: StartedPostgreSqlContainer;
 
@@ -29,23 +27,9 @@ describe('AuthService', () => {
     return await authService.signUp(exampleSignUpDto);
   };
 
-  beforeEach(async () => {
-    pgContainer = await new PostgreSqlContainer('postgres:16').start();
-
+  beforeAll(async () => {
     const authModule: TestingModule = await Test.createTestingModule({
-      imports: [
-        TypeOrmModule.forRoot({
-          type: 'postgres',
-          host: pgContainer.getHost(),
-          port: pgContainer.getPort(),
-          username: pgContainer.getUsername(),
-          password: pgContainer.getPassword(),
-          database: pgContainer.getDatabase(),
-          entities: [User],
-          synchronize: true,
-        }),
-        TypeOrmModule.forFeature([User]),
-      ],
+      imports: [createTestDatabaseModule(), TypeOrmModule.forFeature([User])],
       providers: [AuthService],
     }).compile();
 
@@ -70,9 +54,5 @@ describe('AuthService', () => {
 
       expect(loginResponse).toBe('Logged in!');
     });
-  });
-
-  afterAll(async () => {
-    await pgContainer.stop();
   });
 });
