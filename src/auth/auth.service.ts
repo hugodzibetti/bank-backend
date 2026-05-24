@@ -48,11 +48,14 @@ export class AuthService {
       body.password,
     );
     const { password, ...userData } = body;
-    this.usersRepository.create({
+
+    const newUser = this.usersRepository.create({
       ...userData,
       passwordHash,
       passwordSalt,
     });
+
+    await this.usersRepository.save(newUser);
 
     return 'Signed up!';
   }
@@ -63,13 +66,18 @@ export class AuthService {
     return [hashBuffer.toString('hex'), salt.toString('hex')];
   }
 
+  /**
+/**
+ * Checks whether a plain-text password matches the stored password hash.
+ */
   private async verifyPasswordHash(
     password: string,
-    passwordHash: string,
+    storedPasswordHash: string,
     passwordSalt: string,
   ): Promise<boolean> {
-    const hash = scryptSync(password, passwordSalt, 64).toString();
+    const saltBuffer = Buffer.from(passwordSalt, 'hex');
+    const computedHash = scryptSync(password, saltBuffer, 64).toString('hex');
 
-    return hash === passwordHash;
+    return computedHash === storedPasswordHash;
   }
 }

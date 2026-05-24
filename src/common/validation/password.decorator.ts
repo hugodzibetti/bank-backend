@@ -10,7 +10,7 @@ export function Password(options?: ValidationOptions) {
   return applyDecorators(
     IsString(),
     Length(PASSWORD_LENGTH.MIN, PASSWORD_LENGTH.MAX, options),
-    Matches(/[Z-a]/, {
+    Matches(/[a-zA-Z]/, {
       message: 'Password must contain at least one letter',
     }),
     Matches(/[0-9]/, {

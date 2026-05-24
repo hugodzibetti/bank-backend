@@ -2,49 +2,80 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from '../users/entities/user.entity';
-import {
-  PostgreSqlContainer,
-  StartedPostgreSqlContainer,
-} from '@testcontainers/postgresql';
-import { createTestDatabaseModule } from '../../test/helpers/test-database';
+import { SignUpDto } from './dto/sign-up.dto';
 
-let pgContainer: StartedPostgreSqlContainer;
+const exampleLoginDto: LoginDto = {
+  email: 'example@gmail.com',
+  password: '01020304',
+};
+
+const exampleSignUpDto: SignUpDto = {
+  name: 'John Doe',
+  email: 'example@gmail.com',
+  password: '01020304',
+};
 
 describe('AuthController', () => {
   let authController: AuthController;
-  let authService: AuthService;
+  let authService: jest.Mocked<Pick<AuthService, 'login' | 'signUp'>>;
 
   beforeAll(async () => {
-    pgContainer = await new PostgreSqlContainer('postgres:16').start();
-
     const app: TestingModule = await Test.createTestingModule({
-      imports: [createTestDatabaseModule(), TypeOrmModule.forFeature([User])],
       controllers: [AuthController],
-      providers: [AuthService],
+      providers: [
+        {
+          provide: AuthService,
+          useValue: {
+            login: jest.fn(),
+            signUp: jest.fn(),
+          },
+        },
+      ],
     }).compile();
 
     authController = app.get<AuthController>(AuthController);
-    authService = app.get<AuthService>(AuthService);
-  }, 30_000);
+    authService = app.get(AuthService);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
   describe('login', () => {
-    it('should success with example user', async () => {
-      const validLoginDto: LoginDto = {
-        email: 'example@gmail.com',
-        password: '01020304',
-      };
+    it('should call auth service login', async () => {
+      authService.login.mockResolvedValue('Logged in!');
 
-      jest.spyOn(authService, 'login').mockResolvedValue('Logged in!');
+      const result = await authController.login(exampleLoginDto);
 
-      await expect(authController.login(validLoginDto)).resolves.toBe(
-        'Logged in!',
-      );
+      expect(result).toBe('Logged in!');
+      expect(authService.login).toHaveBeenCalledWith(exampleLoginDto);
+    });
+
+    it('should return error if login fails', async () => {
+      const error = new Error('Password is incorrect');
+      authService.login.mockResolvedValue(error);
+
+      const result = await authController.login(exampleLoginDto);
+      expect(result).toBe(error);
     });
   });
 
-  afterAll(async () => {
-    await pgContainer.stop();
+  describe('signUp', () => {
+    it('should call auth service signUp', async () => {
+      authService.signUp.mockResolvedValue('Signed up!');
+
+      const result = await authController.signUp(exampleSignUpDto);
+
+      expect(result).toBe('Signed up!');
+      expect(authService.signUp).toHaveBeenCalledWith(exampleSignUpDto);
+    });
+
+    it('should return error if signUp fails', async () => {
+      const error = new Error('A user with this email already exists');
+      authService.signUp.mockResolvedValue(error);
+
+      const result = await authController.signUp(exampleSignUpDto);
+      expect(result).toBe(error);
+    });
   });
 });
