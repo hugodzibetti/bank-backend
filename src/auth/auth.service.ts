@@ -5,12 +5,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../users/entities/user.entity';
 import { randomBytes, scryptSync } from 'crypto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
+    private readonly jwtService: JwtService,
   ) {}
 
   async login(@Body() body: LoginDto) {
@@ -32,7 +34,12 @@ export class AuthService {
       return Error('Password is incorrect');
     }
 
-    return 'Logged in!';
+    return {
+      accessToken: await this.jwtService.signAsync({
+        sub: existingUser.id,
+        email: existingUser.email,
+      }),
+    };
   }
 
   async signUp(@Body() body: SignUpDto) {
@@ -57,7 +64,12 @@ export class AuthService {
 
     await this.usersRepository.save(newUser);
 
-    return 'Signed up!';
+    return {
+      accessToken: await this.jwtService.signAsync({
+        sub: newUser.id,
+        email: newUser.email,
+      }),
+    };
   }
 
   private async getPasswordHash(password: string) {
@@ -67,9 +79,8 @@ export class AuthService {
   }
 
   /**
-/**
- * Checks whether a plain-text password matches the stored password hash.
- */
+   * Checks whether a plain-text password matches the stored password hash.
+   */
   private async verifyPasswordHash(
     password: string,
     storedPasswordHash: string,

@@ -6,6 +6,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { SignUpDto } from './dto/sign-up.dto';
 import { createTestDatabaseModule } from '../../test/helpers/test-database';
 import { Repository } from 'typeorm';
+import { JwtModule } from '@nestjs/jwt';
 
 const exampleSignUpDto: SignUpDto = {
   name: 'John Doe',
@@ -32,7 +33,14 @@ describe('AuthService', () => {
 
   beforeAll(async () => {
     const authModule: TestingModule = await Test.createTestingModule({
-      imports: [createTestDatabaseModule(), TypeOrmModule.forFeature([User])],
+      imports: [
+        createTestDatabaseModule(),
+        TypeOrmModule.forFeature([User]),
+        JwtModule.register({
+          secret: 'dev-secret',
+          signOptions: { expiresIn: '1h' },
+        }),
+      ],
       providers: [AuthService],
     }).compile();
 
@@ -50,7 +58,7 @@ describe('AuthService', () => {
     it('should create example user', async () => {
       const result = await authService.signUp(exampleSignUpDto);
 
-      expect(result).toBe('Signed up!');
+      expect(result).toHaveProperty('accessToken');
     });
 
     it('should return error if email already exists', async () => {
@@ -82,7 +90,7 @@ describe('AuthService', () => {
       it('should succeed with example user', async () => {
         const result = await authService.login(exampleLoginDto);
 
-        expect(result).toBe('Logged in!');
+        expect(result).toHaveProperty('accessToken');
       });
 
       it('should fail with incorrect password', async () => {

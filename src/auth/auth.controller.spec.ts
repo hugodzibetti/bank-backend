@@ -43,11 +43,13 @@ describe('AuthController', () => {
 
   describe('login', () => {
     it('should call auth service login', async () => {
-      authService.login.mockResolvedValue('Logged in!');
+      authService.login.mockResolvedValue({
+        accessToken: 'imaginaryAccessToken',
+      });
 
       const result = await authController.login(exampleLoginDto);
 
-      expect(result).toBe('Logged in!');
+      expect(result).toHaveProperty('accessToken');
       expect(authService.login).toHaveBeenCalledWith(exampleLoginDto);
     });
 
@@ -62,11 +64,13 @@ describe('AuthController', () => {
 
   describe('signUp', () => {
     it('should call auth service signUp', async () => {
-      authService.signUp.mockResolvedValue('Signed up!');
+      authService.signUp.mockResolvedValue({
+        accessToken: 'imaginaryAccessToken',
+      });
 
       const result = await authController.signUp(exampleSignUpDto);
 
-      expect(result).toBe('Signed up!');
+      expect(result).toHaveProperty('accessToken');
       expect(authService.signUp).toHaveBeenCalledWith(exampleSignUpDto);
     });
 
