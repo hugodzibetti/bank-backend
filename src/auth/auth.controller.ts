@@ -7,13 +7,13 @@ import { SignUpDto } from './dto/sign-up.dto';
 export class AuthController {
   constructor(private readonly appService: AuthService) {}
 
-  @Post()
-  login(@Body() body: LoginDto): string {
-    return this.appService.login(body);
+  @Post('login')
+  async login(@Body() body: LoginDto) {
+    return await this.appService.login(body);
   }
 
-  @Post()
-  signUp(@Body() body: SignUpDto): string {
-    return this.appService.signUp(body);
+  @Post('signUp')
+  async signUp(@Body() body: SignUpDto) {
+    return await this.appService.signUp(body);
   }
 }
