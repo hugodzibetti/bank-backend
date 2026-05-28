@@ -1,5 +1,5 @@
 import { applyDecorators } from '@nestjs/common';
-import { IsString, Length, Matches, ValidationOptions } from 'class-validator';
+import { IsNotEmpty, IsString, Length, Matches, ValidationOptions, } from 'class-validator';
 
 export const PASSWORD_LENGTH = {
   MIN: 8,
@@ -8,6 +8,7 @@ export const PASSWORD_LENGTH = {
 
 export function Password(options?: ValidationOptions) {
   return applyDecorators(
+    IsNotEmpty(),
     IsString(),
     Length(PASSWORD_LENGTH.MIN, PASSWORD_LENGTH.MAX, options),
     Matches(/[a-zA-Z]/, {
