@@ -2,6 +2,7 @@ import { Body, Controller, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { SignUpDto } from './dto/sign-up.dto';
+import { BodyRequiredPipe } from '../common/pipes/body-required/body-required.pipe';
 
 @Controller('auth')
 export class AuthController {
