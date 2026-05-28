@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { User } from '../users/entities/user.entity';
 import { randomBytes, scryptSync } from 'crypto';
 import { JwtService } from '@nestjs/jwt';
+import { BodyRequiredPipe } from '../common/pipes/body-required/body-required.pipe';
 
 @Injectable()
 export class AuthService {
@@ -15,7 +16,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async login(@Body() body: LoginDto) {
+  async login(@Body(BodyRequiredPipe) body: LoginDto) {
     const existingUser = await this.usersRepository.findOne({
       where: { email: body.email },
     });
@@ -42,7 +43,7 @@ export class AuthService {
     };
   }
 
-  async signUp(@Body() body: SignUpDto) {
+  async signUp(@Body(BodyRequiredPipe) body: SignUpDto) {
     const existingUser = await this.usersRepository.findOne({
       where: { email: body.email },
     });
