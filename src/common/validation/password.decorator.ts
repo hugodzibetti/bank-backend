@@ -1,5 +1,11 @@
 import { applyDecorators } from '@nestjs/common';
-import { IsNotEmpty, IsString, Length, Matches, ValidationOptions, } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  Length,
+  Matches,
+  ValidationOptions,
+} from 'class-validator';
 
 export const PASSWORD_LENGTH = {
   MIN: 8,
