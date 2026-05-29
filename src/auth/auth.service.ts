@@ -3,7 +3,7 @@ import { LoginDto } from './dto/login.dto';
 import { SignUpDto } from './dto/sign-up.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from '../users/entities/user.entity';
+import { User } from '../user/entities/user.entity';
 import { randomBytes, scryptSync } from 'crypto';
 import { JwtService } from '@nestjs/jwt';
 import { BodyRequiredPipe } from '../common/pipes/body-required/body-required.pipe';

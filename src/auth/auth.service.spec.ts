@@ -1,6 +1,6 @@
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
-import { User } from '../users/entities/user.entity';
+import { User } from '../user/entities/user.entity';
 import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SignUpDto } from './dto/sign-up.dto';

@@ -1,5 +1,5 @@
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from '../../src/users/entities/user.entity';
+import { User } from '../../src/user/entities/user.entity';
 
 export function createTestDatabaseModule() {
   return TypeOrmModule.forRoot({
