@@ -1,5 +1,5 @@
 import { IsEmail } from 'class-validator';
-import { Password } from '../../common/validation/password.decorator';
+import { Password } from '../../common/decorators/password.decorator';
 
 export class LoginDto {
   @IsEmail()
