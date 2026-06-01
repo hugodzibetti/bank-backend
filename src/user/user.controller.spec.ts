@@ -4,7 +4,7 @@ import { UserController } from './user.controller';
 describe('TransactionController', () => {
   let controller: UserController;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [UserController],
     }).compile();
