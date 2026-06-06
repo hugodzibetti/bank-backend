@@ -1,20 +1,20 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import type LoginDto from './dto/login.dto';
-import { BodyRequiredPipe } from '../../common/pipes/body-required.pipe';
-import type SignUpDto from './dto/sign-up.dto';
+import { LoginDto } from './dto/login.dto';
+import { SignUpDto } from './dto/sign-up.dto';
+import { BodyRequiredPipe } from '../../common/pipes/body-required/body-required.pipe';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly appService: AuthService) {}
 
   @Post('login')
   login(@Body(BodyRequiredPipe) body: LoginDto) {
-    return this.authService.login(body);
+    return this.appService.login(body);
   }
 
   @Post('signUp')
   signUp(@Body(BodyRequiredPipe) body: SignUpDto) {
-    return this.authService.signUp(body);
+    return this.appService.signUp(body);
   }
 }

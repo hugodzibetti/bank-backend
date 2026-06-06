@@ -1,54 +1,92 @@
-import { Body, Injectable, Post, UnauthorizedException } from '@nestjs/common';
-import type LoginDto from './dto/login.dto';
-import type SignUpDto from './dto/sign-up.dto';
-import exampleUsers from '../../../test/fixtures/users';
-import { User } from '../users/entities/user.entity';
+import { Body, Injectable } from '@nestjs/common';
+import { LoginDto } from './dto/login.dto';
+import { SignUpDto } from './dto/sign-up.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User } from '../user/entities/user.entity';
+import { randomBytes, scryptSync } from 'crypto';
 import { JwtService } from '@nestjs/jwt';
+import { BodyRequiredPipe } from '../../common/pipes/body-required/body-required.pipe';
 
 @Injectable()
 export class AuthService {
-  constructor(private jwtService: JwtService) {}
+  constructor(
+    @InjectRepository(User)
+    private readonly usersRepository: Repository<User>,
+    private readonly jwtService: JwtService,
+  ) {}
 
-  @Post('login')
-  async login(@Body() body: LoginDto) {
-    const user = this.validateCredentials(body.email, body.password);
+  async login(@Body(BodyRequiredPipe) body: LoginDto) {
+    const existingUser = await this.usersRepository.findOne({
+      where: { email: body.email },
+    });
 
-    return;
-  }
-
-  @Post('signUp')
-  async signUp(@Body() body: SignUpDto) {
-    const { email, password } = body;
-    const existingUser = exampleUsers.find((user) => user.email == email);
-
-    if (existingUser) {
-      throw new UnauthorizedException('A users with this email already exists');
+    if (!existingUser) {
+      return Error('A user with this email doesnt exists');
     }
 
-    const newUser: User = {
-      id: exampleUsers.length + 1,
-      name: 'New User',
-      email,
-      password,
-    };
-    exampleUsers.push(newUser);
+    const isPasswordValid = await this.verifyPasswordHash(
+      body.password,
+      existingUser.passwordHash,
+      existingUser.passwordSalt,
+    );
+
+    if (!isPasswordValid) {
+      return Error('Password is incorrect');
+    }
 
     return {
-      generatedUserId: 123112,
-      accessToken: 'generated_token',
+      accessToken: await this.jwtService.signAsync({
+        sub: existingUser.id,
+        email: existingUser.email,
+      }),
     };
   }
 
-  async validateCredentials(email: string, password: string) {
-    const user = exampleUsers.find(
-      (user) => user.email == email && user.password == password,
-    );
-    if (!user) {
-      throw new UnauthorizedException(
-        'Could not find a users with these credentials',
-      );
+  async signUp(@Body(BodyRequiredPipe) body: SignUpDto) {
+    const existingUser = await this.usersRepository.findOne({
+      where: { email: body.email },
+    });
+
+    if (existingUser) {
+      return Error('A user with this email already exists');
     }
 
-    return user;
+    const [passwordHash, passwordSalt] = await this.getPasswordHash(
+      body.password,
+    );
+    const { password, ...userData } = body;
+
+    const newUser = this.usersRepository.create({
+      ...userData,
+      passwordHash,
+      passwordSalt,
+    });
+
+    await this.usersRepository.save(newUser);
+
+    return {
+      accessToken: await this.jwtService.signAsync({
+        sub: newUser.id,
+        email: newUser.email,
+      }),
+    };
+  }
+
+  private async getPasswordHash(password: string) {
+    const salt = randomBytes(16);
+    const hashBuffer = scryptSync(password, salt, 64);
+    return [hashBuffer.toString('hex'), salt.toString('hex')];
+  }
+
+  private async verifyPasswordHash(
+    password: string,
+    storedPasswordHash: string,
+    passwordSalt: string,
+  ): Promise<boolean> {
+    const saltBuffer = Buffer.from(passwordSalt, 'hex');
+    const computedHash = scryptSync(password, saltBuffer, 64).toString('hex');
+
+    return computedHash === storedPasswordHash;
   }
 }

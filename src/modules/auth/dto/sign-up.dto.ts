@@ -1,7 +1,12 @@
-type SignUpDto = {
-  name: string;
-  email: string;
-  password: string;
-};
+import { IsEmail, IsNotEmpty, Length } from 'class-validator';
+import { Password } from '../../../common/decorators/password.decorator';
 
-export default SignUpDto;
+export class SignUpDto {
+  @IsNotEmpty()
+  @Length(3, 24)
+  name: string;
+  @IsEmail()
+  email: string;
+  @Password()
+  password: string;
+}

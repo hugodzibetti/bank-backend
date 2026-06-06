@@ -1,6 +1,9 @@
-type LoginDto = {
-  email: string;
-  password: string;
-};
+import { IsEmail } from 'class-validator';
+import { Password } from '../../../common/decorators/password.decorator';
 
-export default LoginDto;
+export class LoginDto {
+  @IsEmail()
+  email: string;
+  @Password()
+  password: string;
+}
