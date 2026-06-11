@@ -1,32 +1,30 @@
 # NestJS Banking API
 
-A scalable, complete, and well-designed banking back-end solution built with NestJS. This project is developed as part
-of a professional curriculum to demonstrate best practices in modern back-end development.
+A banking back-end built with NestJS, demonstrating modern back-end development practices.
 
-## 🚀 Tech Stack
+## Tech Stack
 
 - **Framework:** [NestJS](https://nestjs.com/) (v11)
 - **Language:** TypeScript
 - **ORM:** [TypeORM](https://typeorm.io/)
-- **Database:** SQLite (Configurable via environment variables)
-- **Validation:
-  ** [class-validator](https://github.com/typestack/class-validator) & [class-transformer](https://github.com/typestack/class-transformer)
-- **Authentication:** [Passport.js](https://www.passportjs.org/) & JWT
+- **Database:** SQLite
+- **Validation:** [class-validator](https://github.com/typestack/class-validator)
+- **Authentication:** [Passport.js](https://www.passportjs.org/) (JWT)
 - **Testing:** [Jest](https://jestjs.io/) & Supertest
 
-## ✨ Features
+## Features
 
-- [x] **Users:** Account creation and profile management.
-- [x] **Authentication:** Secure login and registration using JWT and Passport.
-- [x] **Accounts:** Bank account management (In progress).
-- [ ] **Transactions:** Deposit and withdrawal logic.
-- [ ] **Transfers:** Peer-to-peer money transfers.
+- [x] **Users:** Creation and profile management
+- [x] **Authentication:** Login and registration with JWT
+- [x] **Accounts:** Bank account management (In progress)
+- [ ] **Transactions:** Deposit and withdrawal logic
+- [ ] **Transfers:** Peer-to-peer transfers
 
-## 🛠️ Getting Started
+## Getting Started
 
 ### Prerequisites
 
-- Node.js (v20+ recommended)
+- Node.js (v20+)
 - npm
 
 ### Installation
@@ -42,16 +40,16 @@ of a professional curriculum to demonstrate best practices in modern back-end de
    npm install
    ```
 
-3. Set up environment variables:
+3. Set up environment:
    ```bash
    cp .env.example .env
    ```
-   *Edit `.env` as needed.*
+   *Update the `.env` file with your configuration.*
 
 ### Running the App
 
 ```bash
-# Development mode
+# Development
 npm run start:dev
 
 # Production mode
@@ -59,7 +57,7 @@ npm run build
 npm run start:prod
 ```
 
-## 🧪 Testing
+### Testing
 
 ```bash
 # Unit tests
@@ -71,7 +69,3 @@ npm run test:e2e
 # Test coverage
 npm run test:cov
 ```
-
-## 📈 Development Process
-
-I’m using [Linear](https://linear.app/) for managing the development process and tracking tasks.
