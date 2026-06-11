@@ -5,10 +5,20 @@ import { AuthService } from './auth.service';
 describe('AuthController', () => {
   let controller: AuthController;
 
-  beforeEach(async () => {
+  const authServiceMock: jest.Mocked<Pick<AuthService, 'login' | 'signUp'>> = {
+    login: jest.fn(),
+    signUp: jest.fn(),
+  }
+
+  beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
-      providers: [AuthService],
+      providers: [
+        {
+          provide: AuthService,
+          useValue: authServiceMock,
+        }
+      ],
     }).compile();
 
     controller = module.get<AuthController>(AuthController);
