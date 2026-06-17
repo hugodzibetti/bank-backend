@@ -1,4 +1,8 @@
-import { ConflictException, Injectable, UnauthorizedException, } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { LoginDto } from './dto/login.dto';
 import { SignUpDto } from './dto/sign-up.dto';
 import { InjectRepository } from '@nestjs/typeorm';
