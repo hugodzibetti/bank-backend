@@ -2,10 +2,10 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
-import { UserController } from './modules/user/user.controller';
-import { UserService } from './modules/user/user.service';
 import { DatabaseModule } from './infrastructure/database/database.module';
 import { configuration } from './common/config/configuration';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtGuard } from './modules/auth/guards/jwt.guard';
 
 @Module({
   imports: [
