@@ -1,8 +1,4 @@
-import {
-  ConflictException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { ConflictException, Injectable, UnauthorizedException, } from '@nestjs/common';
 import { LoginDto } from './dto/login.dto';
 import { SignUpDto } from './dto/sign-up.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -20,13 +16,13 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async login(@Body(BodyRequiredPipe) body: LoginDto) {
+  async login(body: LoginDto) {
     const existingUser = await this.usersRepository.findOne({
       where: { email: body.email },
     });
 
     if (!existingUser) {
-      return Error('A user with this email doesnt exists');
+      throw new UnauthorizedException('A user with this email doesnt exists');
     }
 
     const isPasswordValid = this.verifyPasswordHash(
@@ -35,7 +31,7 @@ export class AuthService {
     );
 
     if (!isPasswordValid) {
-      return Error('Password is incorrect');
+      throw new UnauthorizedException('Password is incorrect');
     }
 
     return {
@@ -46,13 +42,13 @@ export class AuthService {
     };
   }
 
-  async signUp(@Body(BodyRequiredPipe) body: SignUpDto) {
+  async signUp(body: SignUpDto) {
     const existingUser = await this.usersRepository.findOne({
       where: { email: body.email },
     });
 
     if (existingUser) {
-      return Error('A user with this email already exists');
+      throw new ConflictException('A user with this email already exists');
     }
 
     const { password: passwordPlain, ...userData } = body;
