@@ -1,12 +1,16 @@
-import { Body, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { LoginDto } from './dto/login.dto';
 import { SignUpDto } from './dto/sign-up.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../user/entities/user.entity';
+import { Password } from '../user/entities/password.embeddable';
 import { randomBytes, scryptSync } from 'crypto';
 import { JwtService } from '@nestjs/jwt';
-import { BodyRequiredPipe } from '../../common/pipes/body-required/body-required.pipe';
 
 @Injectable()
 export class AuthService {
@@ -25,10 +29,9 @@ export class AuthService {
       return Error('A user with this email doesnt exists');
     }
 
-    const isPasswordValid = await this.verifyPasswordHash(
+    const isPasswordValid = this.verifyPasswordHash(
       body.password,
-      existingUser.passwordHash,
-      existingUser.passwordSalt,
+      existingUser.password,
     );
 
     if (!isPasswordValid) {
@@ -52,15 +55,12 @@ export class AuthService {
       return Error('A user with this email already exists');
     }
 
-    const [passwordHash, passwordSalt] = await this.getPasswordHash(
-      body.password,
-    );
-    const { password, ...userData } = body;
+    const { password: passwordPlain, ...userData } = body;
+    const password = this.getPasswordHash(passwordPlain);
 
     const newUser = this.usersRepository.create({
       ...userData,
-      passwordHash,
-      passwordSalt,
+      password,
     });
 
     await this.usersRepository.save(newUser);
@@ -73,20 +73,22 @@ export class AuthService {
     };
   }
 
-  private async getPasswordHash(password: string) {
+  private getPasswordHash(password: string): Password {
     const salt = randomBytes(16);
     const hashBuffer = scryptSync(password, salt, 64);
-    return [hashBuffer.toString('hex'), salt.toString('hex')];
+    const passwordEntry = new Password();
+    passwordEntry.hash = hashBuffer.toString('hex');
+    passwordEntry.salt = salt.toString('hex');
+    return passwordEntry;
   }
 
-  private async verifyPasswordHash(
+  private verifyPasswordHash(
     password: string,
-    storedPasswordHash: string,
-    passwordSalt: string,
-  ): Promise<boolean> {
-    const saltBuffer = Buffer.from(passwordSalt, 'hex');
+    storedPassword: Password,
+  ): boolean {
+    const saltBuffer = Buffer.from(storedPassword.salt, 'hex');
     const computedHash = scryptSync(password, saltBuffer, 64).toString('hex');
 
-    return computedHash === storedPasswordHash;
+    return computedHash === storedPassword.hash;
   }
 }

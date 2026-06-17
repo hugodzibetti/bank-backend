@@ -1,4 +1,5 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Password } from './password.embeddable';
 
 @Entity()
 export class User {
@@ -11,9 +12,6 @@ export class User {
   @Column()
   email: string;
 
-  @Column()
-  passwordHash: string;
-
-  @Column()
-  passwordSalt: string;
+  @Column(() => Password, { prefix: '' })
+  password: Password;
 }
