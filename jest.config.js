@@ -11,6 +11,8 @@ if (alternativeRootDir !== absoluteRootDir && fs.existsSync(alternativeRootDir))
 }
 
 module.exports = {
+  globalSetup: '<rootDir>/test/jest-global-setup.ts',
+  globalTeardown: '<rootDir>/test/jest-global-teardown.ts',
   moduleFileExtensions: ['js', 'json', 'ts'],
   rootDir: rootDir,
   roots: roots,
