@@ -14,7 +14,12 @@ import { configuration } from './common/config/configuration';
     UserModule,
     DatabaseModule,
   ],
-  controllers: [UserController],
-  providers: [UserService],
+  controllers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: JwtGuard,
+    },
+  ],
 })
 export class AppModule {}
