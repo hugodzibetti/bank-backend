@@ -12,9 +12,9 @@ export default async function globalSetup() {
 
   globalThis.__PG_CONTAINER__ = container;
 
-  process.env.TEST_DB_HOST = container.getHost();
-  process.env.TEST_DB_PORT = container.getPort().toString();
-  process.env.TEST_DB_USERNAME = container.getUsername();
-  process.env.TEST_DB_PASSWORD = container.getPassword();
-  process.env.TEST_DB_DATABASE = container.getDatabase();
+  process.env.DB_HOST = container.getHost();
+  process.env.DB_PORT = container.getPort().toString();
+  process.env.DB_USERNAME = container.getUsername();
+  process.env.DB_PASSWORD = container.getPassword();
+  process.env.DB_DATABASE = container.getDatabase();
 }

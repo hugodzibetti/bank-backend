@@ -1,8 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
-import SignUpDto from './dto/sign-up.dto';
-import LoginDto from './dto/login.dto';
-import { UnauthorizedException } from '@nestjs/common';
+import { SignUpDto } from './dto/sign-up.dto';
+import { LoginDto } from './dto/login.dto';
+import { ConflictException, UnauthorizedException } from '@nestjs/common';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { User } from '../user/entities/user.entity';
+import { Password } from '../user/entities/password.embeddable';
+import { JwtService } from '@nestjs/jwt';
 
 describe('AuthService', () => {
   let service: AuthService;
