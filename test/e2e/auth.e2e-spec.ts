@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { AppModule } from '../src/app.module';
-import { DatabaseModule } from '../src/infrastructure/database/database.module';
-import { createTestDatabaseModule } from './helpers/test-database';
+import { AppModule } from '../../src/app.module';
+import { DatabaseModule } from '../../src/infrastructure/database/database.module';
+import { createTestDatabaseModule } from '../helpers/test-database';
 
 describe('auth (e2e)', () => {
   let app: INestApplication;
@@ -45,7 +45,6 @@ describe('auth (e2e)', () => {
         password: 'password123',
         name: 'Test User',
       });
-
       return request(app.getHttpServer())
         .post('/auth/signUp')
         .send({
@@ -61,10 +60,7 @@ describe('auth (e2e)', () => {
     it('should login a user and return an access token', () => {
       return request(app.getHttpServer())
         .post('/auth/login')
-        .send({
-          email: 'test@example.com',
-          password: 'password123',
-        })
+        .send({ email: 'test@example.com', password: 'password123' })
         .expect(201)
         .expect((res) => {
           expect(res.body).toHaveProperty('accessToken');
@@ -74,20 +70,14 @@ describe('auth (e2e)', () => {
     it('should return error for non-existent email', () => {
       return request(app.getHttpServer())
         .post('/auth/login')
-        .send({
-          email: 'nonexistent@example.com',
-          password: 'password123',
-        })
+        .send({ email: 'nonexistent@example.com', password: 'password123' })
         .expect(401);
     });
 
     it('should return error for incorrect password', () => {
       return request(app.getHttpServer())
         .post('/auth/login')
-        .send({
-          email: 'test@example.com',
-          password: 'wrongpassword',
-        })
+        .send({ email: 'test@example.com', password: 'wrongpassword' })
         .expect(401);
     });
   });
