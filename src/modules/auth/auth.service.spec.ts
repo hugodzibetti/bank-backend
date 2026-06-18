@@ -7,9 +7,23 @@ import { UnauthorizedException } from '@nestjs/common';
 describe('AuthService', () => {
   let service: AuthService;
 
+  const mockUserRepository = {
+    findOne: jest.fn(),
+    create: jest.fn(),
+    save: jest.fn(),
+  };
+
+  const mockJwtService = {
+    signAsync: jest.fn().mockResolvedValue('mock-access-token'),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [AuthService],
+      providers: [
+        AuthService,
+        { provide: getRepositoryToken(User), useValue: mockUserRepository },
+        { provide: JwtService, useValue: mockJwtService },
+      ],
     }).compile();
 
     service = module.get<AuthService>(AuthService);
@@ -20,38 +34,55 @@ describe('AuthService', () => {
   });
 
   describe('login', () => {
-    it('should success with valid credentials', () => {
-      const validCredentials: LoginDto = {
-        email: 'email@example.com',
+    it('should fail when user does not exist', async () => {
+      mockUserRepository.findOne.mockResolvedValue(null);
+
+      const credentials: LoginDto = {
+        email: 'nonexistent@example.com',
         password: 'password123',
       };
 
-      const result = service.login(validCredentials);
-      expect(result).toBeTruthy();
+      await expect(service.login(credentials)).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
   });
 
   describe('signUp', () => {
-    it('should success with valid data', async () => {
+    it('should succeed with valid data', async () => {
+      mockUserRepository.findOne.mockResolvedValue(null);
+      mockUserRepository.create.mockReturnValue({
+        name: 'exampleUser1',
+        email: 'example@email.com',
+        password: expect.any(Object) as unknown as Password,
+      });
+      mockUserRepository.save.mockResolvedValue({
+        id: 1,
+        name: 'exampleUser1',
+        email: 'example@email.com',
+      });
+
       const validData: SignUpDto = {
         name: 'exampleUser1',
         email: 'example@email.com',
         password: '3xampl&PASSW0RD',
       };
       const result = await service.signUp(validData);
-      expect(result).toEqual(
-        expect.objectContaining({ accessToken: expect.any(String) }),
-      );
+      expect(result).toMatchObject({
+        accessToken: expect.any(String) as never,
+      });
     });
 
     it('should error on using existing users email', async () => {
+      mockUserRepository.findOne.mockResolvedValue({ id: 1 });
+
       const validData: SignUpDto = {
         name: 'exampleUser1',
         email: 'example@email.com',
         password: 'somePassword123',
       };
       await expect(service.signUp(validData)).rejects.toThrow(
-        UnauthorizedException,
+        ConflictException,
       );
     });
   });
