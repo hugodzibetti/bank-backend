@@ -7,6 +7,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
 import { Password } from '../user/entities/password.embeddable';
 import { JwtService } from '@nestjs/jwt';
+import { randomBytes, scryptSync } from 'crypto';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -49,6 +50,53 @@ describe('AuthService', () => {
       await expect(service.login(credentials)).rejects.toThrow(
         UnauthorizedException,
       );
+    });
+
+    it('should fail when password is incorrect', async () => {
+      const salt = randomBytes(16).toString('hex');
+      const hash = scryptSync('correctPassword', salt, 64).toString('hex');
+      const hashedPassword = `${salt}:${hash}`;
+
+      mockUserRepository.findOne.mockResolvedValue({
+        id: 1,
+        email: 'test@example.com',
+        password: { hash: hashedPassword },
+      });
+
+      const credentials: LoginDto = {
+        email: 'test@example.com',
+        password: 'wrongPassword',
+      };
+
+      await expect(service.login(credentials)).rejects.toThrow(
+        UnauthorizedException,
+      );
+    });
+
+    it('should succeed with valid credentials', async () => {
+      const password = 'correctPassword';
+      const salt = randomBytes(16).toString('hex');
+      const hash = scryptSync(password, salt, 64).toString('hex');
+      const hashedPassword = `${salt}:${hash}`;
+
+      mockUserRepository.findOne.mockResolvedValue({
+        id: 1,
+        email: 'test@example.com',
+        password: { hash: hashedPassword },
+      });
+
+      const credentials: LoginDto = {
+        email: 'test@example.com',
+        password,
+      };
+
+      const result = await service.login(credentials);
+
+      expect(result).toEqual({ accessToken: 'mock-access-token' });
+      expect(mockJwtService.signAsync).toHaveBeenCalledWith({
+        sub: 1,
+        email: 'test@example.com',
+      });
     });
   });
 
