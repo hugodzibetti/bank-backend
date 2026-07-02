@@ -8,7 +8,7 @@ describe('UserService', () => {
   let service: UserService;
 
   const mockUserRepository = {
-    findOneBy: jest.fn(),
+    findOne: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -29,38 +29,46 @@ describe('UserService', () => {
   describe('getMe', () => {
     it('should return the user when found', async () => {
       const mockUser = { id: 1, name: 'Test User', email: 'test@example.com' };
-      mockUserRepository.findOneBy.mockResolvedValue(mockUser);
+      mockUserRepository.findOne.mockResolvedValue(mockUser);
 
       const result = await service.getMe(1);
 
       expect(result).toEqual(mockUser);
-      expect(mockUserRepository.findOneBy).toHaveBeenCalledWith({ id: 1 });
+      expect(mockUserRepository.findOne).toHaveBeenCalledWith({
+        where: { id: 1 },
+      });
     });
 
     it('should throw NotFoundException when user not found', async () => {
-      mockUserRepository.findOneBy.mockResolvedValue(null);
+      mockUserRepository.findOne.mockResolvedValue(null);
 
       await expect(service.getMe(999)).rejects.toThrow(NotFoundException);
-      expect(mockUserRepository.findOneBy).toHaveBeenCalledWith({ id: 999 });
+      expect(mockUserRepository.findOne).toHaveBeenCalledWith({
+        where: { id: 999 },
+      });
     });
   });
 
   describe('getUserById', () => {
     it('should return the user when found', async () => {
       const mockUser = { id: 1, name: 'Test User', email: 'test@example.com' };
-      mockUserRepository.findOneBy.mockResolvedValue(mockUser);
+      mockUserRepository.findOne.mockResolvedValue(mockUser);
 
       const result = await service.getUserById(1);
 
-      expect(result).toEqual(mockUser);
-      expect(mockUserRepository.findOneBy).toHaveBeenCalledWith({ id: 1 });
+      expect(result).toEqual({ id: 1, name: 'Test User' });
+      expect(mockUserRepository.findOne).toHaveBeenCalledWith({
+        where: { id: 1 },
+      });
     });
 
     it('should throw NotFoundException when user not found', async () => {
-      mockUserRepository.findOneBy.mockResolvedValue(null);
+      mockUserRepository.findOne.mockResolvedValue(null);
 
       await expect(service.getUserById(999)).rejects.toThrow(NotFoundException);
-      expect(mockUserRepository.findOneBy).toHaveBeenCalledWith({ id: 999 });
+      expect(mockUserRepository.findOne).toHaveBeenCalledWith({
+        where: { id: 999 },
+      });
     });
   });
 });

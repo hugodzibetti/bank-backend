@@ -54,13 +54,16 @@ describe('AuthService', () => {
 
     it('should fail when password is incorrect', async () => {
       const salt = randomBytes(16).toString('hex');
-      const hash = scryptSync('correctPassword', salt, 64).toString('hex');
-      const hashedPassword = `${salt}:${hash}`;
+      const hash = scryptSync(
+        'correctPassword',
+        Buffer.from(salt, 'hex'),
+        64,
+      ).toString('hex');
 
       mockUserRepository.findOne.mockResolvedValue({
         id: 1,
         email: 'test@example.com',
-        password: { hash: hashedPassword },
+        password: { hash, salt },
       });
 
       const credentials: LoginDto = {
@@ -76,13 +79,14 @@ describe('AuthService', () => {
     it('should succeed with valid credentials', async () => {
       const password = 'correctPassword';
       const salt = randomBytes(16).toString('hex');
-      const hash = scryptSync(password, salt, 64).toString('hex');
-      const hashedPassword = `${salt}:${hash}`;
+      const hash = scryptSync(password, Buffer.from(salt, 'hex'), 64).toString(
+        'hex',
+      );
 
       mockUserRepository.findOne.mockResolvedValue({
         id: 1,
         email: 'test@example.com',
-        password: { hash: hashedPassword },
+        password: { hash, salt },
       });
 
       const credentials: LoginDto = {

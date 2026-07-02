@@ -27,7 +27,10 @@ describe('TransactionService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         TransactionService,
-        { provide: getRepositoryToken(Account), useValue: mockAccountRepository },
+        {
+          provide: getRepositoryToken(Account),
+          useValue: mockAccountRepository,
+        },
         { provide: DataSource, useValue: mockDataSource },
       ],
     }).compile();
@@ -127,7 +130,7 @@ describe('TransactionService', () => {
       mockManager.save.mockResolvedValue(savedTransaction);
       mockManager.create.mockReturnValue(savedTransaction);
       mockDataSource.transaction.mockImplementation(
-        async (cb: (manager: typeof mockManager) => unknown) => {
+        (cb: (manager: typeof mockManager) => unknown) => {
           return cb(mockManager);
         },
       );
@@ -136,20 +139,29 @@ describe('TransactionService', () => {
 
       expect(result).toEqual(savedTransaction);
       expect(mockDataSource.transaction).toHaveBeenCalled();
-      expect(mockManager.save).toHaveBeenCalledWith(Account, expect.objectContaining({
-        id: 1,
-        balance: 400,
-      }));
-      expect(mockManager.save).toHaveBeenCalledWith(Account, expect.objectContaining({
-        id: 2,
-        balance: 300,
-      }));
+      expect(mockManager.save).toHaveBeenCalledWith(
+        Account,
+        expect.objectContaining({
+          id: 1,
+          balance: 400,
+        }),
+      );
+      expect(mockManager.save).toHaveBeenCalledWith(
+        Account,
+        expect.objectContaining({
+          id: 2,
+          balance: 300,
+        }),
+      );
       expect(mockManager.create).toHaveBeenCalledWith(Transaction, {
         from: fromAccount,
         to: toAccount,
         amount: 100,
       });
-      expect(mockManager.save).toHaveBeenCalledWith(Transaction, savedTransaction);
+      expect(mockManager.save).toHaveBeenCalledWith(
+        Transaction,
+        savedTransaction,
+      );
     });
 
     it('should propagate error when transaction callback throws', async () => {
@@ -160,11 +172,9 @@ describe('TransactionService', () => {
         .mockResolvedValueOnce(fromAccount)
         .mockResolvedValueOnce(toAccount);
 
-      mockDataSource.transaction.mockImplementation(
-        async () => {
-          throw new Error('Database error');
-        },
-      );
+      mockDataSource.transaction.mockImplementation(() => {
+        throw new Error('Database error');
+      });
 
       await expect(service.create(userId, dto)).rejects.toThrow(
         'Database error',

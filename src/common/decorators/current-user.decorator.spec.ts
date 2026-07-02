@@ -1,12 +1,26 @@
 import { ExecutionContext } from '@nestjs/common';
+import { ROUTE_ARGS_METADATA } from '@nestjs/common/constants';
+import { CurrentUser } from './current-user.decorator';
+
+function getParamDecoratorFactory(
+  decorator: (...args: unknown[]) => ParameterDecorator,
+) {
+  class TestClass {
+    test(@decorator() _value: unknown) {
+      void _value;
+    }
+  }
+  const args = Reflect.getMetadata(
+    ROUTE_ARGS_METADATA,
+    TestClass,
+    'test',
+  ) as Record<string, { factory: (...args: unknown[]) => unknown }>;
+  const key = Object.keys(args)[0];
+  return args[key].factory;
+}
 
 describe('CurrentUser Decorator', () => {
-  // Duplicate the exact factory logic from createParamDecorator
-  const factory = (data: string | undefined, ctx: ExecutionContext) => {
-    const request = ctx.switchToHttp().getRequest<Record<string, unknown>>();
-    const user = request.user as Record<string, unknown> | undefined;
-    return data ? user?.[data] : user;
-  };
+  const factory = getParamDecoratorFactory(CurrentUser);
 
   function createMockCtx(user: unknown): ExecutionContext {
     return {
