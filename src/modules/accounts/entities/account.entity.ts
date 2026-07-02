@@ -1,5 +1,12 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { IsInt, IsString } from 'class-validator';
+import { User } from '../../user/entities/user.entity';
 
 @Entity()
 export class Account {
@@ -13,5 +20,9 @@ export class Account {
 
   @Column()
   @IsInt()
-  dollarUnits: number;
+  balance: number;
+
+  @ManyToOne(() => User)
+  @JoinColumn()
+  user: User;
 }
