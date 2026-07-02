@@ -9,7 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../user/entities/user.entity';
 import { Password } from '../user/entities/password.embeddable';
-import { randomBytes, scryptSync } from 'crypto';
+import { randomBytes, scryptSync, timingSafeEqual } from 'crypto';
 import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
@@ -87,8 +87,9 @@ export class AuthService {
     storedPassword: Password,
   ): boolean {
     const saltBuffer = Buffer.from(storedPassword.salt, 'hex');
-    const computedHash = scryptSync(password, saltBuffer, 64).toString('hex');
+    const computedHashBuffer = scryptSync(password, saltBuffer, 64);
+    const storedHashBuffer = Buffer.from(storedPassword.hash, 'hex');
 
-    return computedHash === storedPassword.hash;
+    return timingSafeEqual(computedHashBuffer, storedHashBuffer);
   }
 }
